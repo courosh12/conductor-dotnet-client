@@ -12,6 +12,9 @@ The rest api client is based on the swagger.json file. The client is generated w
                     return new ConductorRestClient("http://localhost:8080/api", httpClient);
                 }
             );
+## Package
+Install-Package ConductorDotnetClient
+
 ## TODO
 Working on a WorkerHost based on the RestClient
 
