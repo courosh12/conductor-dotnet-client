@@ -19,7 +19,10 @@ dotnet_csproj:
   informational_version: '{version}'
 
 before_build:
-  - nuget restore
+  # Display .NET Core version
+  - cmd: dotnet --version
+  # Display minimal restore text
+  - cmd: dotnet restore ./src/ConductorDotnetClient/ConductorDotnetClient.csproj --verbosity m
 
 
 build:
