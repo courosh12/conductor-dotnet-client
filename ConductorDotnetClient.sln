@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.89
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConductorDotnetClient", "ConductorDotnetClient\ConductorDotnetClient.csproj", "{4D4891AC-3E37-4FB0-A263-95946A13B233}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4D13764A-A545-4A86-B00C-42C0676111A9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D4891AC-3E37-4FB0-A263-95946A13B233}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D4891AC-3E37-4FB0-A263-95946A13B233}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D4891AC-3E37-4FB0-A263-95946A13B233}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D4891AC-3E37-4FB0-A263-95946A13B233}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4D4891AC-3E37-4FB0-A263-95946A13B233} = {4D13764A-A545-4A86-B00C-42C0676111A9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40725804-A629-4438-97BE-B850DDD1A3B3}
+	EndGlobalSection
+EndGlobal
