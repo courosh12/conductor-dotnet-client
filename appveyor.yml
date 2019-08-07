@@ -1,40 +1,28 @@
-version: 1.0.{build}
-
-image: Visual Studio 2019
-
+version: '{build}'
+image: Visual Studio 2017
 dotnet_csproj:
-
   patch: true
-
   file: '**\*.csproj'
-
   version: '{version}'
-
   package_version: '{version}'
-
   assembly_version: '{version}'
-
   file_version: '{version}'
-
   informational_version: '{version}'
-
+configuration: Release
+platform: Any CPU
 before_build:
-  # Display .NET Core version
-  - cmd: dotnet --version
-  # Display minimal restore text
-  - cmd: dotnet restore ./src/ConductorDotnetClient/ConductorDotnetClient.csproj --verbosity m
-
-
+- cmd: nuget restore
 build:
-
+  publish_nuget: true
   verbosity: minimal
-
+artifacts:
+- path: bin\$(configuration)\*.nupkg
+  name: NuGet Package
 deploy:
-
 - provider: NuGet
-
   api_key:
-
     secure: wy0JrYftrIJwL3zRpeBNvEgfQEO+oulxzh9h20+g9NSuVvnlPCvGTO59+6ut2+KBRG4v1Xyip1UJw4iDhewBNkPR5dsAUxW/j5nr7itjOMI=
-    
-    artifact: /.*\.nupkg/
+  skip_symbols: true
+  artifact: /.*\.nupkg/
+  on:
+    branch: master
