@@ -36,3 +36,5 @@ deploy:
   api_key:
 
     secure: wy0JrYftrIJwL3zRpeBNvEgfQEO+oulxzh9h20+g9NSuVvnlPCvGTO59+6ut2+KBRG4v1Xyip1UJw4iDhewBNkPR5dsAUxW/j5nr7itjOMI=
+    
+    artifact: /.*\.nupkg/
