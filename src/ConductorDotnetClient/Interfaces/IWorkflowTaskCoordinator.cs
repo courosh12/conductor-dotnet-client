@@ -8,6 +8,7 @@ namespace ConductorDotnetClient.Interfaces
     public interface IWorkflowTaskCoordinator
     {
         Task Start();
+        void RegisterWorker<T>() where T : IWorker;
         
     }
 }

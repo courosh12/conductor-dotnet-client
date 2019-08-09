@@ -13,7 +13,7 @@ namespace ConductorDotnetClient
 {
     public static class ServiceExtension
     {
-        public static IServiceCollection AddConductorClient(this IServiceCollection serviceProvider, List<IWorker> workers,
+        public static IServiceCollection AddConductorClient(this IServiceCollection serviceProvider,
             string serverUrl,
             int concurrentWorkers=1,
             int sleepInterval = 1000)
@@ -30,8 +30,7 @@ namespace ConductorDotnetClient
 
             serviceProvider.AddTransient<IWorkflowTaskExecutor>(p =>
             {
-                return new WorkflowTaskExecutor(workers,
-                    p.GetService<ITaskClient>(), 
+                return new WorkflowTaskExecutor(p.GetService<ITaskClient>(), 
                     p,
                     p.GetService<ILogger<WorkflowTaskExecutor>>(),
                     sleepInterval);

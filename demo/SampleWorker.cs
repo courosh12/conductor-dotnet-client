@@ -8,12 +8,14 @@ namespace demo
 {
     class SampleWorker : IWorker
     {
-        public string TaskType { get; set; } = "test_task";
+        public string TaskType { get; set; } = "test_task"; 
+
         public int Priority { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public TaskResult Execute(Task task)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Doing some work");
+            return new TaskResult();
         }
     }
 }

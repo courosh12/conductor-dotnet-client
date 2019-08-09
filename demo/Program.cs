@@ -20,10 +20,12 @@ namespace demo
 
             var serviceProvider = new ServiceCollection()
                 .AddLogging(p => p.AddConsole())
-                .AddConductorClient(workers,"http://localhost:8080/api/")
+                .AddTransient<SampleWorker>()
+                .AddConductorClient("http://localhost:8080/api/")
                 .BuildServiceProvider();
 
             var workflowTaskCoordinator= serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
+            workflowTaskCoordinator.RegisterWorker<SampleWorker>();
             await workflowTaskCoordinator.Start();
 
         }
