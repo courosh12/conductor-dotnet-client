@@ -11,14 +11,24 @@ namespace ConductorDotnetClient.Client
     {
         private IConductorRestClient _restClient;
 
-        public RestTaskClient(IConductorRestClient restClient )
+        public RestTaskClient(IConductorRestClient restClient)
         {
             _restClient = restClient;
         }
 
-        public  Task<Swagger.Api.Task> PollTask(string taskType, string workerId, string domain)
+        public Task<Swagger.Api.Task> PollTask(string taskType, string workerId, string domain)
         {
             return _restClient.PollAsync(taskType, workerId, domain);
+        }
+
+        public Task<string> UpdateTask(TaskResult result)
+        {
+            return _restClient.UpdateTaskAsync(result);
+        }
+
+        public Task<string> AckTask(string taskId, string workerid)
+        {
+            return _restClient.AckAsync(taskId, workerid);
         }
     }
 }

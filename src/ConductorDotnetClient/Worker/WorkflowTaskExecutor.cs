@@ -1,12 +1,14 @@
 ﻿using ConductorDotnetClient.Enum;
 using ConductorDotnetClient.Exceptions;
 using ConductorDotnetClient.Interfaces;
+using ConductorDotnetClient.Swagger.Api;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace ConductorDotnetClient.Worker
 {
@@ -55,7 +57,7 @@ namespace ConductorDotnetClient.Worker
 
                 if (task != null)
                 {
-                    ProcessTask(task,taskObj);
+                    await ProcessTask(task,taskObj);
                     break;
                 }
             }
@@ -69,13 +71,12 @@ namespace ConductorDotnetClient.Worker
             return workers;
         }
 
-
         public Task<Swagger.Api.Task> PollForTask(string taskType)
         {
             return _taskClient.PollTask(taskType, _workerId,null);
         }
 
-        private void ProcessTask(Swagger.Api.Task task,IWorker taskType)
+        private async Task ProcessTask(Swagger.Api.Task task,IWorker taskType)
         {
             _logger.LogInformation($"Processing task:{task.TaskDefName}");
 
@@ -86,7 +87,9 @@ namespace ConductorDotnetClient.Worker
 
             try
             {
+                await AckTask(task);
                 var result = ((IWorker)worker).Execute(task);
+                await UpdateTask(result);
             }
             catch(Exception e)
             {
@@ -94,5 +97,16 @@ namespace ConductorDotnetClient.Worker
             }
         }
 
+        private async Task UpdateTask(TaskResult taskResult)
+        {
+            var result = await _taskClient.UpdateTask(taskResult);
+            _logger.LogInformation(result);
+        }
+
+        private async Task AckTask(Swagger.Api.Task task)
+        {
+            var result = await _taskClient.AckTask(task.TaskId, task.WorkerId);
+            _logger.LogInformation(result);
+        }
     }
 }
