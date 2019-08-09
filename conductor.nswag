@@ -52,7 +52,7 @@
       "generateResponseClasses": true,
       "responseClass": "SwaggerResponse",
       "namespace": "ConductorDotnetClient.Swagger.Api",
-      "requiredPropertiesMustBeDefined": true,
+      "requiredPropertiesMustBeDefined": false,
       "dateType": "System.DateTimeOffset",
       "jsonConverters": null,
       "anyType": "object",
@@ -85,7 +85,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "src/ConductorDotnetClient/ConductorRestClient.cs"
+      "output": "src/ConductorDotnetClient/Generated/CondcutorRestClient.cs"
     }
   }
 }

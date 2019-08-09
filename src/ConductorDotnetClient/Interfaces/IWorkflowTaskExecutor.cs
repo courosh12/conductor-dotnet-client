@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace ConductorDotnetClient.Interfaces
 {
-    public interface IWorkflowTaskCoordinator
+    public interface IWorkflowTaskExecutor
     {
-        Task Start();
-        
+        Task StartPoller();
     }
 }

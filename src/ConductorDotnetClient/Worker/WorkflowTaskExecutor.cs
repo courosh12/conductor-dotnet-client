@@ -1,46 +1,85 @@
-﻿using ConductorDotnetClient.Interfaces;
+﻿using ConductorDotnetClient.Enum;
+using ConductorDotnetClient.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ConductorDotnetClient.Worker
 {
-    public class WorkflowTaskExecutor
+    public class WorkflowTaskExecutor : IWorkflowTaskExecutor
     {
-        public List<IWorker> Workers { get; set; }
+        private List<IWorker> _workers;
+        private ILogger<WorkflowTaskExecutor> _logger;
+        private int _sleepInterval;
+        private PollPriority _priority;
+        private ITaskClient _taskClient;
+        private IServiceProvider _serviceProvider;
+        private string _workerId = "worker1";//TODO make this read from machine
 
-        public void StartPoller()
+        public WorkflowTaskExecutor(List<IWorker> workers,
+            ITaskClient taskClient,
+            IServiceProvider serviceProvider,
+            ILogger<WorkflowTaskExecutor> logger,
+            int sleepInterval,
+            PollPriority priority = PollPriority.RANDOM)
         {
-            //some checks //cancelation token
+            _workers = workers;
+            _taskClient = taskClient;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _sleepInterval = sleepInterval;
+            _priority = priority;
+        }
+
+        public async Task StartPoller()
+        {
+            _logger.LogInformation("Starting poller");
+            if (_workers is null || _workers.Count==0) throw new NullReferenceException("Workers not set");
+
             while (true)
             {
-                PollCyclus();
+                await PollCyclus();
             }
         }
 
-        private void PollCyclus()
+        private async Task PollCyclus()
         {
-            foreach (var taskType in Workers)
+            var workersToBePolled = DeterminOrderOfPolling(_workers);
+            foreach (var taskType in workersToBePolled)
             {
-                var task = PollForTask(taskType.TaskType);
+                var task = await PollForTask(taskType.TaskType);
 
                 if (task != null)
                 {
-                    //execute task
                     ProcessTask(task);
                     break;
                 }
             }
+
+            await Task.Delay(_sleepInterval);
         }
 
-        public ConductorTask PollForTask(string taskType)
+        private List<IWorker> DeterminOrderOfPolling(ICollection<IWorker> workers)
         {
-            throw new NotImplementedException();
+            //TODO implement real logic
+            return (List<IWorker>)workers;
         }
 
-        private void ProcessTask(object task)
-        {
 
+        public Task<Swagger.Api.Task> PollForTask(string taskType)
+        {
+            return _taskClient.PollTask(taskType, _workerId,null);
+        }
+
+        private void ProcessTask(Swagger.Api.Task task)
+        {
+            _logger.LogInformation($"Processing task:{task.TaskDefName}");
+
+            var workerDef= _workers.Where(p => p.TaskType == task.TaskType).Single();
+            var worker =_serviceProvider.GetService(workerDef.GetType());
         }
 
     }

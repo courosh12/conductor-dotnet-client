@@ -16,9 +16,9 @@ namespace ConductorDotnetClient.Client
             _restClient = restClient;
         }
 
-        public async Task<Swagger.Api.Task> PollTask(string taskType, string workerId, string domain)
+        public  Task<Swagger.Api.Task> PollTask(string taskType, string workerId, string domain)
         {
-            return await _restClient.PollAsync(taskType, workerId, domain);
+            return _restClient.PollAsync(taskType, workerId, domain);
         }
     }
 }
