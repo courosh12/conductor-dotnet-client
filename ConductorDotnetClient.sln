@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4D13764A-A54
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConductorDotnetClient", "src\ConductorDotnetClient\ConductorDotnetClient.csproj", "{35581A63-6E32-4FC7-A831-1A353909286D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demo", "src\demo\demo.csproj", "{18E0F12C-E451-480E-B168-0AABACE6A27D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +19,17 @@ Global
 		{35581A63-6E32-4FC7-A831-1A353909286D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35581A63-6E32-4FC7-A831-1A353909286D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35581A63-6E32-4FC7-A831-1A353909286D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E0F12C-E451-480E-B168-0AABACE6A27D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E0F12C-E451-480E-B168-0AABACE6A27D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E0F12C-E451-480E-B168-0AABACE6A27D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E0F12C-E451-480E-B168-0AABACE6A27D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{35581A63-6E32-4FC7-A831-1A353909286D} = {4D13764A-A545-4A86-B00C-42C0676111A9}
+		{18E0F12C-E451-480E-B168-0AABACE6A27D} = {4D13764A-A545-4A86-B00C-42C0676111A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40725804-A629-4438-97BE-B850DDD1A3B3}
