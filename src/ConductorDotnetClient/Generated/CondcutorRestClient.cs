@@ -2199,6 +2199,7 @@ namespace ConductorDotnetClient.Swagger.Api
                         var status_ = ((int)response_.StatusCode).ToString();
                         if (status_ == "200") 
                         {
+                            return "Ok";//TODO temp fix due to the newtonsoft "feature" that tries to deserlize the response as a number and fails
                             var objectResponse_ = await ReadObjectResponseAsync<string>(response_, headers_).ConfigureAwait(false);
                             return objectResponse_.Object;
                         }

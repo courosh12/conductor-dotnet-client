@@ -15,7 +15,12 @@ namespace demo
         public TaskResult Execute(Task task)
         {
             Console.WriteLine("Doing some work");
-            return new TaskResult();
+            return new TaskResult()
+            {
+                WorkflowInstanceId=task.WorkflowInstanceId,
+                TaskId=task.TaskId,
+                Status=TaskResultStatus.COMPLETED
+            };
         }
     }
 }
