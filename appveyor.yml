@@ -15,7 +15,7 @@ before_build:
   - cmd: dotnet restore --verbosity m
 build_script:
   # output will be in ./src/bin/debug/netcoreapp1.1/publish
-  - cmd: dotnet pack -c release 
+  - cmd: dotnet pack -c release src/ConductorDotnetClient/ConductorDotnetClient.csproj
 after_build:
   # For once the build has completed
 artifacts:

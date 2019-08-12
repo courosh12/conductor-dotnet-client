@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace ConductorDotnetClient
+namespace ConductorDotnetClient.Extensions
 {
     public static class ServiceExtension
     {
@@ -18,7 +18,7 @@ namespace ConductorDotnetClient
             int concurrentWorkers=1,
             int sleepInterval = 1000)
         {
-            serviceProvider.AddTransient<IWorkflowTaskCoordinator>(p=>{
+            serviceProvider.AddSingleton<IWorkflowTaskCoordinator>(p=>{
                 return new WorkflowTaskCoordinator(p,p.GetService<ILogger<WorkflowTaskCoordinator>>(), concurrentWorkers);
             });
 

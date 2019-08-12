@@ -3,10 +3,11 @@ using ConductorDotnetClient.Swagger.Api;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ConductorDotnetClient.Extensions;
 
 namespace demo
 {
-    class SampleWorker : IWorker
+    class SampleWorker : IWorkflowTask
     {
         public string TaskType { get; set; } = "test_task"; 
 
@@ -15,12 +16,9 @@ namespace demo
         public TaskResult Execute(Task task)
         {
             Console.WriteLine("Doing some work");
-            return new TaskResult()
-            {
-                WorkflowInstanceId=task.WorkflowInstanceId,
-                TaskId=task.TaskId,
-                Status=TaskResultStatus.COMPLETED
-            };
+            return task.Completed();
+            //return task.Completed(new Dictionary<string, object>() { }); with ouputdata
+            //return task.Failed("error message ")//error
         }
     }
 }
