@@ -6,6 +6,7 @@ using System;
 using ConductorDotnetClient;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ConductorDotnetClient.Extensions;
 
 namespace demo
 {
