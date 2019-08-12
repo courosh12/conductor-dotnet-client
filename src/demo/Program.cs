@@ -13,7 +13,7 @@ namespace demo
     {
         static async Task Main(string[] args)
         {
-            var workers = new List<IWorker>
+            var workers = new List<IWorkflowTask>
             {
                 new SampleWorker()
             };

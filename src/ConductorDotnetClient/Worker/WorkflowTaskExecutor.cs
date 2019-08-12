@@ -58,7 +58,7 @@ namespace ConductorDotnetClient.Worker
             var workersToBePolled = DeterminOrderOfPolling(_workers);
             foreach (var taskType in workersToBePolled)
             {
-                var taskObj=(IWorker)Activator.CreateInstance(taskType);
+                var taskObj=(IWorkflowTask)Activator.CreateInstance(taskType);
                 _logger.LogInformation(GetWorkerName() + $"Polling for task type: {taskObj.TaskType}");
 
                 var task = await PollForTask(taskObj.TaskType);
@@ -84,7 +84,7 @@ namespace ConductorDotnetClient.Worker
             return _taskClient.PollTask(taskType, _workerId,null);
         }
 
-        private async Task ProcessTask(Swagger.Api.Task task,IWorker taskType)
+        private async Task ProcessTask(Swagger.Api.Task task,IWorkflowTask taskType)
         {
             _logger.LogInformation(GetWorkerName() + $"Processing task:{task.TaskDefName} id:{task.TaskId}");
 
@@ -96,7 +96,7 @@ namespace ConductorDotnetClient.Worker
             try
             {
                 await AckTask(task);
-                var result = ((IWorker)worker).Execute(task);
+                var result = ((IWorkflowTask)worker).Execute(task);
                 result.WorkerId = _workerId;
                 await UpdateTask(result);
             }

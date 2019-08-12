@@ -38,7 +38,7 @@ namespace ConductorDotnetClient.Worker
             await Task.WhenAll(pollers);
         }
 
-        public void RegisterWorker<T>() where T : IWorker
+        public void RegisterWorker<T>() where T : IWorkflowTask
         {
             _workerDefinitions.Add(typeof(T));
         }

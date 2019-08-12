@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace ConductorDotnetClient
+namespace ConductorDotnetClient.Extensions
 {
     public static class ServiceExtension
     {

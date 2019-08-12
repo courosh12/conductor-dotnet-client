@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ConductorDotnetClient.Interfaces
 {
-    public interface IWorker
+    public interface IWorkflowTask
     {
         string TaskType { get; set; }
         int Priority { get; set; }
