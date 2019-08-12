@@ -58,14 +58,18 @@ namespace ConductorDotnetClient.Worker
             var workersToBePolled = DeterminOrderOfPolling(_workers);
             foreach (var taskType in workersToBePolled)
             {
-                var taskObj=(IWorkflowTask)Activator.CreateInstance(taskType);
-                _logger.LogInformation(GetWorkerName() + $"Polling for task type: {taskObj.TaskType}");
+                //var taskObj=(IWorkflowTask)Activator.CreateInstance(taskType);
+                var worklfowTask = _serviceProvider.GetService(taskType) as IWorkflowTask;
+                if (worklfowTask is null)
+                    throw new WorkerNotFoundException(taskType.GetType().Name);
 
-                var task = await PollForTask(taskObj.TaskType);
+                _logger.LogInformation(GetWorkerName() + $"Polling for task type: {worklfowTask.TaskType}");
+
+                var task = await PollForTask(worklfowTask.TaskType);
 
                 if (task != null)
                 {
-                    await ProcessTask(task,taskObj);
+                    await ProcessTask(task, worklfowTask);
                     break;
                 }
             }
@@ -84,19 +88,14 @@ namespace ConductorDotnetClient.Worker
             return _taskClient.PollTask(taskType, _workerId,null);
         }
 
-        private async Task ProcessTask(Swagger.Api.Task task,IWorkflowTask taskType)
+        private async Task ProcessTask(Swagger.Api.Task task,IWorkflowTask workflowTask)
         {
             _logger.LogInformation(GetWorkerName() + $"Processing task:{task.TaskDefName} id:{task.TaskId}");
-
-            var worker =_serviceProvider.GetService(taskType.GetType());
-
-            if (worker is null)
-                throw new WorkerNotFoundException(taskType.GetType().Name);
 
             try
             {
                 await AckTask(task);
-                var result = ((IWorkflowTask)worker).Execute(task);
+                var result = workflowTask.Execute(task);
                 result.WorkerId = _workerId;
                 await UpdateTask(result);
             }
