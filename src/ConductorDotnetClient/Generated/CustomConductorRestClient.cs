@@ -16,8 +16,8 @@ namespace ConductorDotnetClient.Swagger.Api
                 return new ObjectResponseResult<T>(default(T), string.Empty);
             }
 
-            // TODO: This should must likely be fixed in NSwag. For now we fix it this way 
-            // If the response Content-Type is 'text/plain' there is no need to JSON deserialize this
+            // TODO: This should most likely be fixed in NSwag. For now we fix it this way 
+            // If the response Content-Type header is 'text/plain' there is no need to JSON deserialize this response
             // Cast it to T and return it
             if (headers.ContainsKey("Content-Type") && headers["Content-Type"].Any(s => s == "text/plain"))
             {
