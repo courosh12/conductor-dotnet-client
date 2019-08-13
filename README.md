@@ -9,14 +9,15 @@ The rest api client is based on the swagger.json file. The client is generated w
 Register the client in you di with the following method:
  
 
-    services.AddConductorClient("http://localhost:8080/api/");
+    services.AddConductorClient( service => "http://localhost:8080/api/");
+
 
 To use the generated rest api ask for the IConductorRestClient interface.
 
 ## Worker
 When configuring the client u have the option to set the amount of workes and the polling interval
 
-	services.AddConductorClient("http://localhost:8080/api/",1,1000);
+	services.AddConductorClient(service => "http://localhost:8080/api/",1,1000);
 
 This will start x workes who will poll every x second for new tasks.
 

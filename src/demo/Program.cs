@@ -22,7 +22,7 @@ namespace demo
             var serviceProvider = new ServiceCollection()
                 .AddLogging(p => p.AddConsole())
                 .AddTransient<SampleWorker>()
-                .AddConductorClient("http://localhost:8080/api/")
+                .AddConductorClient( service => "http://localhost:8080/api/")
                 .BuildServiceProvider();
 
             var workflowTaskCoordinator= serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
