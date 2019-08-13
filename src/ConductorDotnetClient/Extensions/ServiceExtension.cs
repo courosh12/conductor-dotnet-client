@@ -23,7 +23,7 @@ namespace ConductorDotnetClient.Extensions
             });
 
             serviceProvider.AddTransient<IConductorRestClient>(p => {
-                return new ConductorRestClient(serverUrl, new HttpClient());
+                return new CustomConductorRestClient(serverUrl, new HttpClient());
             });
 
             serviceProvider.AddTransient<ITaskClient, RestTaskClient>();
