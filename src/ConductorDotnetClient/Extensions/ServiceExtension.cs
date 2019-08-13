@@ -14,7 +14,7 @@ namespace ConductorDotnetClient.Extensions
     public static class ServiceExtension
     {
         public static IServiceCollection AddConductorClient(this IServiceCollection serviceProvider,
-            string serverUrl,
+            Func<IServiceProvider,string>serverUrl,
             int concurrentWorkers=1,
             int sleepInterval = 1000)
         {
@@ -23,7 +23,7 @@ namespace ConductorDotnetClient.Extensions
             });
 
             serviceProvider.AddTransient<IConductorRestClient>(p => {
-                return new ConductorRestClient(serverUrl, new HttpClient());
+                return new ConductorRestClient(serverUrl(p), new HttpClient());
             });
 
             serviceProvider.AddTransient<ITaskClient, RestTaskClient>();
