@@ -719,6 +719,8 @@ namespace ConductorDotnetClient.Swagger.Api
     
     }
     
+
+
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.0.4.0 (NJsonSchema v10.0.21.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class ConductorRestClient : IConductorRestClient
     {
@@ -2199,7 +2201,6 @@ namespace ConductorDotnetClient.Swagger.Api
                         var status_ = ((int)response_.StatusCode).ToString();
                         if (status_ == "200") 
                         {
-                            return "Ok";//TODO temp fix due to the newtonsoft "feature" that tries to deserlize the response as a number and fails
                             var objectResponse_ = await ReadObjectResponseAsync<string>(response_, headers_).ConfigureAwait(false);
                             return objectResponse_.Object;
                         }
