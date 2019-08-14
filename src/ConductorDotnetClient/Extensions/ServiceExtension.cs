@@ -13,30 +13,31 @@ namespace ConductorDotnetClient.Extensions
 {
     public static class ServiceExtension
     {
-        public static IServiceCollection AddConductorClient(this IServiceCollection serviceProvider,
-            Func<IServiceProvider,string>serverUrl,
-            int concurrentWorkers=1,
+        public static IServiceCollection AddConductorClient(this IServiceCollection services,
+            Func<IServiceProvider, string> serverUrl,
+            int concurrentWorkers = 1,
             int sleepInterval = 1000)
         {
-            serviceProvider.AddSingleton<IWorkflowTaskCoordinator>(p=>{
-                return new WorkflowTaskCoordinator(p,p.GetService<ILogger<WorkflowTaskCoordinator>>(), concurrentWorkers);
+            services.AddSingleton<IWorkflowTaskCoordinator>(p => {
+                return new WorkflowTaskCoordinator(p, p.GetService<ILogger<WorkflowTaskCoordinator>>(), concurrentWorkers);
             });
 
-            serviceProvider.AddTransient<IConductorRestClient>(p => {
-                return new CustomConductorRestClient(serverUrl(p), new HttpClient());
-            });
-
-            serviceProvider.AddTransient<ITaskClient, RestTaskClient>();
-
-            serviceProvider.AddTransient<IWorkflowTaskExecutor>(p =>
+            services.AddHttpClient<IConductorRestClient, CustomConductorRestClient>((provider, client) =>
             {
-                return new WorkflowTaskExecutor(p.GetService<ITaskClient>(), 
-                    p,
-                    p.GetService<ILogger<WorkflowTaskExecutor>>(),
+                client.BaseAddress = new Uri(serverUrl(provider));
+            });
+
+            services.AddTransient<ITaskClient, RestTaskClient>();
+
+            services.AddTransient<IWorkflowTaskExecutor>(provider =>
+            {
+                return new WorkflowTaskExecutor(provider.GetService<ITaskClient>(),
+                    provider,
+                    provider.GetService<ILogger<WorkflowTaskExecutor>>(),
                     sleepInterval);
             });
 
-            return serviceProvider;
+            return services;
         }
     }
 }

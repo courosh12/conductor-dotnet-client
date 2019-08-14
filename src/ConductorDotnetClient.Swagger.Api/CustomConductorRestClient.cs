@@ -7,7 +7,7 @@ namespace ConductorDotnetClient.Swagger.Api
 {
     public class CustomConductorRestClient : ConductorRestClient
     {
-        public CustomConductorRestClient(string baseUrl, System.Net.Http.HttpClient httpClient) : base(baseUrl, httpClient) { }
+        public CustomConductorRestClient(System.Net.Http.HttpClient httpClient) : base(httpClient) { }
 
         protected override async System.Threading.Tasks.Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(System.Net.Http.HttpResponseMessage response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers)
         {
