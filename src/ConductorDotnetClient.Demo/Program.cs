@@ -23,7 +23,6 @@ namespace ConductorDotnetClient.Demo
             }
             
             await workflowTaskCoordinator.Start();
-
         }        
     }
 }

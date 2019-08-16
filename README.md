@@ -3,7 +3,7 @@
 
 # conductor-dotnet-client
 
-This packages provides both an abstration over the Conductor REST API and a way to start a worker that polls for certain tasks.
+This packages provides both an abstration for the [Conductor](https://github.com/Netflix/conductor) REST API and a way to start a worker that polls for certain tasks.
 
 The REST API client is based on the swagger.json file as provided by Conductor. The client is generated with NSwag and the nswag.json config and swagger data is provided in the repo.
 
