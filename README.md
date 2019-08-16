@@ -3,27 +3,40 @@
 
 # conductor-dotnet-client
 
-The rest api client is based on the swagger.json file. The client is generated with NSwag and the .nswag config file is also available.
+This packages provides both an abstration over the Conductor REST API and a way to start a worker that polls for certain tasks.
 
-## Usage
-Register the client in you di with the following method:
+The REST API client is based on the swagger.json file as provided by Conductor. The client is generated with NSwag and the nswag.json config and swagger data is provided in the repo.
+
+## Client usage
+Register the client in your DI with the following method:
  
 ```csharp
 services.AddConductorClient( service => "http://localhost:8080/api/");
 ```
 
-To use the generated rest api ask for the IConductorRestClient interface.
-
-## Worker
-When configuring the client u have the option to set the amount of workes and the polling interval
+To use the generated REST API ask for the IConductorRestClient interface.
 
 ```csharp
-services.AddConductorClient(service => "http://localhost:8080/api/", 1, 1000);
+public Sample
+{
+    public Sample(IConductorRestClient conductorRestClient)
+    {
+        var workflowInstanceId = conductorRestClient.StartWorkflowAsync(startWorkflowRequest).GetAwaiter().GetResult()
+    }
+}
 ```
 
-This will start x workes who will poll every x second for new tasks.
+## Worker usage
 
-Your worker has to implement the IWorkflowTask interface. 
+To use the worker register the client and worker in your DI with the following method, you have the option to set the amount of workers, polling interval and domain.
+
+```csharp
+services.AddConductorWorker(service => "http://localhost:8080/api/", 1, 1000, "SampleDomain");
+```
+
+This will start __x__ workes who will poll every __y__ second for new tasks.
+
+Your worker has to implement the IWorkflowTask interface; 
 
 ```csharp
 public class SampleWorker : IWorkflowTask
@@ -43,16 +56,23 @@ public class SampleWorker : IWorkflowTask
 }
 ```
 
-And also be regsiterd with the workerclient:
+be registerd in the DI;
+
+```csharp
+services.AddConductorWorkflowTask<SampleWorkerTask>();
+```
+
+and also be regsiterd with the worker:
 
 ```csharp
 var workflowTaskCoordinator = serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
-workflowTaskCoordinator.RegisterWorker<SampleWorker>();
+foreach(var worker in serviceProvider.GetServices<IWorkflowTask>())
+{
+    workflowTaskCoordinator.RegisterWorker(worker);
+}
 ```
 
-Also make sure to register your worker with the di client as it will be resloved there at runtime.
-
-After that u can start the client:
+After that you can start the worker:
 
 ```csharp
 await workflowTaskCoordinator.Start();
@@ -60,7 +80,7 @@ await workflowTaskCoordinator.Start();
 
 Make sure to await it as it is an never ending task.
 
-## Package
+## Installation
 
 ```ps
 Install-Package ConductorDotnetClient
@@ -68,6 +88,6 @@ Install-Package ConductorDotnetClient
 
 ## TODO
 
- - shutdown
- - priority polling
- - implement response timeout ping
+ - Shutdown
+ - Priority polling
+ - Implement response timeout ping
