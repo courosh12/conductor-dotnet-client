@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ConductorDotnetClient.Swagger.Api\ConductorDotnetClient.Swagger.Api.csproj" />
     <ProjectReference Include="..\ConductorDotnetClient\ConductorDotnetClient.csproj" />
   </ItemGroup>
 

@@ -3,63 +3,91 @@
 
 # conductor-dotnet-client
 
-The rest api client is based on the swagger.json file. The client is generated with NSwag and the .nswag config file is also available.
+This packages provides both an abstration for the [Conductor](https://github.com/Netflix/conductor) REST API and a way to start a worker that polls for certain tasks.
 
-## Usage
-Register the client in you di with the following method:
+The REST API client is based on the swagger.json file as provided by Conductor. The client is generated with NSwag and the nswag.json config and swagger data is provided in the repo.
+
+## Client usage
+Register the client in your DI with the following method:
  
+```csharp
+services.AddConductorClient( service => "http://localhost:8080/api/");
+```
 
-    services.AddConductorClient( service => "http://localhost:8080/api/");
+To use the generated REST API ask for the IConductorRestClient interface.
 
+```csharp
+public Sample
+{
+    public Sample(IConductorRestClient conductorRestClient)
+    {
+        var workflowInstanceId = conductorRestClient.StartWorkflowAsync(startWorkflowRequest).GetAwaiter().GetResult()
+    }
+}
+```
 
-To use the generated rest api ask for the IConductorRestClient interface.
+## Worker usage
 
-## Worker
-When configuring the client u have the option to set the amount of workes and the polling interval
+To use the worker register the client and worker in your DI with the following method, you have the option to set the amount of workers, polling interval and domain.
 
-	services.AddConductorClient(service => "http://localhost:8080/api/",1,1000);
+```csharp
+services.AddConductorWorker(service => "http://localhost:8080/api/", 1, 1000, "SampleDomain");
+```
 
-This will start x workes who will poll every x second for new tasks.
+This will start __x__ workes who will poll every __y__ second for new tasks.
 
-Your worker has to implement the IWorkflowTask interface. 
+Your worker has to implement the IWorkflowTask interface; 
 
-       class SampleWorker : IWorkflowTask
-       {
-           public string TaskType { get; set; } = "test_task"; 
-    
-            public int Priority { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    
-            public TaskResult Execute(Task task)
-            {
-                Console.WriteLine("Doing some work");
-                return task.Completed();
-                //return task.Completed(new Dictionary<string, object>() { }); with ouputdata
-                //return task.Failed("error message ")//error
-            }
-        }
+```csharp
+public class SampleWorker : IWorkflowTask
+{
+    public string TaskType { get; } = "test_task"; 
 
-And also be regsiterd with the workerclient:
+    public int Priority { get => throw new NotImplementedException(); }
 
-    var workflowTaskCoordinator= serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
-    workflowTaskCoordinator.RegisterWorker<SampleWorker>();
+    public Task<TaskResult> Execute(ConductorTask task)
+    {
+        Console.WriteLine("Doing some work");
+        return Task.FromResult(task.Completed());
+        //return Task.FromResult(task.Completed(new Dictionary<string, object>() { })); // with ouputdata
+        //return Task.FromResult(task.Failed("error message ")); //error
+        //return Task.FromResult(task.FailedWithTerminalError("error message")); // terminal failure
+    }
+}
+```
 
-Also make sure to register your worker with the di client as it will be resloved there at runtime.
+be registerd in the DI;
 
-After that u can start the client:
+```csharp
+services.AddConductorWorkflowTask<SampleWorkerTask>();
+```
 
-	await workflowTaskCoordinator.Start();
+and also be regsiterd with the worker:
+
+```csharp
+var workflowTaskCoordinator = serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
+foreach(var worker in serviceProvider.GetServices<IWorkflowTask>())
+{
+    workflowTaskCoordinator.RegisterWorker(worker);
+}
+```
+
+After that you can start the worker:
+
+```csharp
+await workflowTaskCoordinator.Start();
+```
 
 Make sure to await it as it is an never ending task.
 
+## Installation
 
-
-
-## Package
-
-    Install-Package ConductorDotnetClient
+```ps
+Install-Package ConductorDotnetClient
+```
 
 ## TODO
 
- - shutdown
- - priority polling
-
+ - Shutdown
+ - Priority polling
+ - Implement response timeout ping

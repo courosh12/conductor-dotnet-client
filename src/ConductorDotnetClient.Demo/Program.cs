@@ -1,34 +1,28 @@
 ﻿using ConductorDotnetClient.Interfaces;
-using ConductorDotnetClient.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using ConductorDotnetClient;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConductorDotnetClient.Extensions;
 
-namespace demo
+namespace ConductorDotnetClient.Demo
 {
     class Program
     {
         static async Task Main(string[] args)
         {
-            var workers = new List<IWorkflowTask>
-            {
-                new SampleWorker()
-            };
-
             var serviceProvider = new ServiceCollection()
                 .AddLogging(p => p.AddConsole())
-                .AddTransient<SampleWorker>()
-                .AddConductorClient( service => "http://localhost:8080/api/")
+                .AddConductorWorkflowTask<SampleWorkerTask>()
+                .AddConductorWorker(service => "http://localhost:8080/api/", 1, 1000, "SampleDomain")
                 .BuildServiceProvider();
 
-            var workflowTaskCoordinator= serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
-            workflowTaskCoordinator.RegisterWorker<SampleWorker>();
+            var workflowTaskCoordinator = serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
+            foreach(var worker in serviceProvider.GetServices<IWorkflowTask>())
+            {
+                workflowTaskCoordinator.RegisterWorker(worker);
+            }
+            
             await workflowTaskCoordinator.Start();
-
-        }
+        }        
     }
 }

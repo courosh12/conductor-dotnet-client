@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ConductorDotnetClient.Worker
 {
-    public class WorkflowTaskCoordinator : IWorkflowTaskCoordinator
+    internal class WorkflowTaskCoordinator : IWorkflowTaskCoordinator
     {
         private int _concurrentWorkers;
         private IServiceProvider _serviceProvider;
@@ -38,9 +38,9 @@ namespace ConductorDotnetClient.Worker
             await Task.WhenAll(pollers);
         }
 
-        public void RegisterWorker<T>() where T : IWorkflowTask
+        public void RegisterWorker<T>(T task) where T : IWorkflowTask
         {
-            _workerDefinitions.Add(typeof(T));
+            _workerDefinitions.Add(task.GetType());
         }
     }
 }
