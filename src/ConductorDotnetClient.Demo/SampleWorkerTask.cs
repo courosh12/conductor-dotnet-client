@@ -1,20 +1,18 @@
 ﻿using ConductorDotnetClient.Interfaces;
 using ConductorDotnetClient.Swagger.Api;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ConductorDotnetClient.Extensions;
 using System.Threading.Tasks;
 using ConductorTask = ConductorDotnetClient.Swagger.Api.Task;
 using Task = System.Threading.Tasks.Task;
 
-namespace demo
+namespace ConductorDotnetClient.Demo
 {
-    class SampleWorker : IWorkflowTask
+    public class SampleWorkerTask : IWorkflowTask
     {
-        public string TaskType { get; set; } = "test_task"; 
+        public string TaskType { get; } = "test_task"; 
 
-        public int Priority { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int Priority { get => throw new NotImplementedException(); }
 
         public Task<TaskResult> Execute(ConductorTask task)
         {

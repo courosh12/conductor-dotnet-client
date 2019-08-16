@@ -5,8 +5,8 @@ namespace ConductorDotnetClient.Interfaces
 {
     public interface IWorkflowTask
     {
-        string TaskType { get; set; }
-        int Priority { get; set; }
+        string TaskType { get; }
+        int Priority { get; }
         Task<TaskResult> Execute(Swagger.Api.Task task);
     }
 }
