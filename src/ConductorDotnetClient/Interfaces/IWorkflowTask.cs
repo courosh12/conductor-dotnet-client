@@ -1,7 +1,5 @@
 ﻿using ConductorDotnetClient.Swagger.Api;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace ConductorDotnetClient.Interfaces
 {
@@ -9,7 +7,7 @@ namespace ConductorDotnetClient.Interfaces
     {
         string TaskType { get; set; }
         int Priority { get; set; }
-        TaskResult Execute(Task task);
+        Task<TaskResult> Execute(Swagger.Api.Task task);
     }
 }
     

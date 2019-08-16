@@ -1,5 +1,6 @@
 ﻿using ConductorDotnetClient.Enum;
 using ConductorDotnetClient.Exceptions;
+using ConductorDotnetClient.Extensions;
 using ConductorDotnetClient.Interfaces;
 using ConductorDotnetClient.Swagger.Api;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,13 @@ using Task = System.Threading.Tasks.Task;
 
 namespace ConductorDotnetClient.Worker
 {
-    public class WorkflowTaskExecutor : IWorkflowTaskExecutor
+    internal class WorkflowTaskExecutor : IWorkflowTaskExecutor
     {
         private List<Type> _workers;
         private ILogger<WorkflowTaskExecutor> _logger;
         private int _sleepInterval;
         private PollPriority _priority;
+        private readonly string _domain;
         private ITaskClient _taskClient;
         private IServiceProvider _serviceProvider;
         private string _workerId = Guid.NewGuid().ToString();
@@ -26,15 +28,17 @@ namespace ConductorDotnetClient.Worker
             IServiceProvider serviceProvider,
             ILogger<WorkflowTaskExecutor> logger,
             int sleepInterval,
+            string domain,
             PollPriority priority = PollPriority.RANDOM)
         {
             _taskClient = taskClient;
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _sleepInterval = sleepInterval; 
+            _sleepInterval = sleepInterval;
             _priority = priority;
+            _domain = domain;
         }
-        
+
         private string GetWorkerName()
         {
             return $"Worker : {_workerId} ";
@@ -43,8 +47,8 @@ namespace ConductorDotnetClient.Worker
         public async Task StartPoller(List<Type> workers)
         {
             _workers = workers;
-            _logger.LogInformation(GetWorkerName()+"Starting poller");
-            if (_workers is null || _workers.Count==0) throw new NullReferenceException("Workers not set");
+            _logger.LogInformation(GetWorkerName() + "Starting poller");
+            if (_workers is null || _workers.Count == 0) throw new NullReferenceException("Workers not set");
 
             while (true)
             {
@@ -54,7 +58,7 @@ namespace ConductorDotnetClient.Worker
 
         private async Task PollCyclus()
         {
-            _logger.LogInformation(GetWorkerName()+"Pollcyclus started");
+            _logger.LogInformation(GetWorkerName() + "Pollcyclus started");
             var workersToBePolled = DeterminOrderOfPolling(_workers);
             foreach (var taskType in workersToBePolled)
             {
@@ -85,31 +89,26 @@ namespace ConductorDotnetClient.Worker
 
         public Task<Swagger.Api.Task> PollForTask(string taskType)
         {
-            return _taskClient.PollTask(taskType, _workerId,null);
+            return _taskClient.PollTask(taskType, _workerId, _domain);
         }
 
-        private async Task ProcessTask(Swagger.Api.Task task,IWorkflowTask workflowTask)
+        private async Task ProcessTask(Swagger.Api.Task task, IWorkflowTask workflowTask)
         {
             _logger.LogInformation(GetWorkerName() + $"Processing task:{task.TaskDefName} id:{task.TaskId}");
+
+            //TODO: we need to think about this try-catch
 
             try
             {
                 await AckTask(task);
-                var result = workflowTask.Execute(task);
+                var result = await workflowTask.Execute(task);
                 result.WorkerId = _workerId;
                 await UpdateTask(result);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                //TODO what if this also fails
                 _logger.LogError(e, GetWorkerName() + "Failed to execute task");
-                await UpdateTask(new TaskResult()
-                {
-                    WorkflowInstanceId=task.WorkflowInstanceId,
-                    TaskId=task.TaskId,
-                    Status=TaskResultStatus.FAILED,
-                    ReasonForIncompletion=e.ToString()
-                });
+                await UpdateTask(task.FailedWithTerminalError(e.ToString()));
             }
         }
 

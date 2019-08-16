@@ -17,7 +17,7 @@ To use the generated rest api ask for the IConductorRestClient interface.
 ## Worker
 When configuring the client u have the option to set the amount of workes and the polling interval
 
-	services.AddConductorClient(service => "http://localhost:8080/api/",1,1000);
+	services.AddConductorClient(service => "http://localhost:8080/api/", 1, 1000);
 
 This will start x workes who will poll every x second for new tasks.
 
@@ -62,4 +62,5 @@ Make sure to await it as it is an never ending task.
 
  - shutdown
  - priority polling
+ - implement response timeout ping
 
