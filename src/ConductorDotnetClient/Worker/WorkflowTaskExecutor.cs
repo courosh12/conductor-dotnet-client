@@ -67,7 +67,7 @@ namespace ConductorDotnetClient.Worker
                 if (worklfowTask is null)
                     throw new WorkerNotFoundException(taskType.GetType().Name);
 
-                _logger.LogInformation(GetWorkerName() + $"Polling for task type: {worklfowTask.TaskType}");
+                _logger.LogTrace(GetWorkerName() + $"Polling for task type: {worklfowTask.TaskType}");
 
                 var task = await PollForTask(worklfowTask.TaskType);
 
@@ -77,7 +77,7 @@ namespace ConductorDotnetClient.Worker
                     break;
                 }
             }
-
+            _logger.LogInformation(GetWorkerName() + "Pollcyclus ended");
             await Task.Delay(_sleepInterval);
         }
 
