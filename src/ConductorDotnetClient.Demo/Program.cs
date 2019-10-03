@@ -13,7 +13,8 @@ namespace ConductorDotnetClient.Demo
             var serviceProvider = new ServiceCollection()
                 .AddLogging(p => p.AddConsole())
                 .AddConductorWorkflowTask<SampleWorkerTask>()
-                .AddConductorWorker(service => "http://localhost:8080/api/", 1, 1000, "SampleDomain")
+                .AddConductorWorkflowTask<SampleWorkerTaskTheSecond>()
+                .AddConductorWorker(service => "http://10.40.80.180:22095/api/", 1, 1000, "SampleDomain")
                 .BuildServiceProvider();
 
             var workflowTaskCoordinator = serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();

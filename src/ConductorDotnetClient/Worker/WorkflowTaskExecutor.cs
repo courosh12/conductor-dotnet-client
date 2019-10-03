@@ -1,5 +1,4 @@
-﻿using ConductorDotnetClient.Enum;
-using ConductorDotnetClient.Exceptions;
+﻿using ConductorDotnetClient.Exceptions;
 using ConductorDotnetClient.Extensions;
 using ConductorDotnetClient.Interfaces;
 using ConductorDotnetClient.Swagger.Api;
@@ -18,7 +17,6 @@ namespace ConductorDotnetClient.Worker
         private List<Type> _workers;
         private ILogger<WorkflowTaskExecutor> _logger;
         private int _sleepInterval;
-        private PollPriority _priority;
         private readonly string _domain;
         private ITaskClient _taskClient;
         private IServiceProvider _serviceProvider;
@@ -28,14 +26,12 @@ namespace ConductorDotnetClient.Worker
             IServiceProvider serviceProvider,
             ILogger<WorkflowTaskExecutor> logger,
             int sleepInterval,
-            string domain,
-            PollPriority priority = PollPriority.RANDOM)
+            string domain)
         {
             _taskClient = taskClient;
             _serviceProvider = serviceProvider;
             _logger = logger;
             _sleepInterval = sleepInterval;
-            _priority = priority;
             _domain = domain;
         }
 
@@ -60,20 +56,15 @@ namespace ConductorDotnetClient.Worker
         {
             _logger.LogInformation(GetWorkerName() + "Pollcyclus started");
             var workersToBePolled = DeterminOrderOfPolling(_workers);
-            foreach (var taskType in workersToBePolled)
+            foreach (var workerToBePolled in workersToBePolled)
             {
-                //var taskObj=(IWorkflowTask)Activator.CreateInstance(taskType);
-                var worklfowTask = _serviceProvider.GetService(taskType) as IWorkflowTask;
-                if (worklfowTask is null)
-                    throw new WorkerNotFoundException(taskType.GetType().Name);
+                _logger.LogTrace(GetWorkerName() + $"Polling for task type: {workerToBePolled.TaskType}");
 
-                _logger.LogTrace(GetWorkerName() + $"Polling for task type: {worklfowTask.TaskType}");
-
-                var task = await PollForTask(worklfowTask.TaskType);
+                var task = await PollForTask(workerToBePolled.TaskType);
 
                 if (task != null)
                 {
-                    await ProcessTask(task, worklfowTask);
+                    await ProcessTask(task, workerToBePolled);
                     break;
                 }
             }
@@ -81,10 +72,22 @@ namespace ConductorDotnetClient.Worker
             await Task.Delay(_sleepInterval);
         }
 
-        private List<Type> DeterminOrderOfPolling(List<Type> workers)
+        private List<IWorkflowTask> DeterminOrderOfPolling(List<Type> workersToBePolled)
         {
-            //TODO implement real logic
-            return workers;
+            var workflowTasks = new List<IWorkflowTask>();
+
+            foreach (var taskType in workersToBePolled)
+            {
+                var worklfowTask = _serviceProvider.GetService(taskType) as IWorkflowTask;
+                if (worklfowTask is null)
+                    throw new WorkerNotFoundException(taskType.GetType().Name);
+                workflowTasks.Add(worklfowTask);
+            }
+
+            var prio =  workflowTasks.Where(p => p.Priority != null).OrderByDescending(p => p.Priority).ToList();
+            var random = workflowTasks.Where(p => p.Priority == null).ToList();
+            ShuffleList(random);
+            return prio.Concat(random).ToList();
         }
 
         public Task<Swagger.Api.Task> PollForTask(string taskType)
@@ -122,6 +125,20 @@ namespace ConductorDotnetClient.Worker
         {
             var result = await _taskClient.AckTask(task.TaskId, task.WorkerId);
             _logger.LogInformation(GetWorkerName() + $"Update respone {result}");
+        }
+
+        private void ShuffleList<T>(List<T> list)
+        {
+            var rng = new Random();
+            var n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                var k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
         }
     }
 }

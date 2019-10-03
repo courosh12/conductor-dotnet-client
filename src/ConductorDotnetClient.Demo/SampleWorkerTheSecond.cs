@@ -2,27 +2,24 @@
 using ConductorDotnetClient.Swagger.Api;
 using System;
 using ConductorDotnetClient.Extensions;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using ConductorTask = ConductorDotnetClient.Swagger.Api.Task;
 using Task = System.Threading.Tasks.Task;
 
 namespace ConductorDotnetClient.Demo
 {
-    public class SampleWorkerTask : IWorkflowTask
+    public class SampleWorkerTaskTheSecond : IWorkflowTask
     {
-        public string TaskType { get; } = "test_task";
+        public string TaskType { get; } = "test_task_2";
 
-        public int? Priority { get; } = 1;
+        public int? Priority { get; } 
 
         public Task<TaskResult> Execute(ConductorTask task)
         {
             Console.WriteLine("Doing some work");
             return Task.FromResult(task.Completed());
-            //return Task.FromResult(task.Completed(new Dictionary<string, object>() { })); // with ouputdata
-            //return Task.FromResult(task.Failed("error message ")); //error
-            //return Task.FromResult(task.FailedWithTerminalError("error message")); // terminal failure
         }
     }
-
-
 }
