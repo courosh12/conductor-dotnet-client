@@ -42,8 +42,7 @@ Your worker has to implement the IWorkflowTask interface;
 public class SampleWorker : IWorkflowTask
 {
     public string TaskType { get; } = "test_task"; 
-
-    public int Priority { get => throw new NotImplementedException(); }
+    public int? Priority { get; } = 1;
 
     public Task<TaskResult> Execute(ConductorTask task)
     {
@@ -56,13 +55,30 @@ public class SampleWorker : IWorkflowTask
 }
 ```
 
-be registerd in the DI;
+#### Priority polling
+
+Priority pollings works as follow, the higher the number the earlier the task will be polled:
+
+```csharp
+    public int? Priority { get; } = 1;
+```
+
+And all null priorities will be randomized.
+```csharp
+    public int? Priority { get; } = null;
+```
+You can use both at the same time.
+
+
+#### Registering
+
+Be registerd in the DI;
 
 ```csharp
 services.AddConductorWorkflowTask<SampleWorkerTask>();
 ```
 
-and also be regsiterd with the worker:
+And also be regsiterd with the worker:
 
 ```csharp
 var workflowTaskCoordinator = serviceProvider.GetRequiredService<IWorkflowTaskCoordinator>();
@@ -89,5 +105,4 @@ Install-Package ConductorDotnetClient
 ## TODO
 
  - Shutdown
- - Priority polling
  - Implement response timeout ping
