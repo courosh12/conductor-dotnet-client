@@ -22,7 +22,7 @@ namespace ConductorDotnetClient.Demo
                     IntervalStrategy = ConductorClientSettings.IntervalStrategyType.Linear,
                     MaxSleepInterval = 15_000,
                     SleepInterval = 1_000,
-                    ServerUrl = new Uri("http://10.40.80.180:22095/api/")
+                    ServerUrl = new Uri("http://localhost:8080/api/")
                 })
                 .BuildServiceProvider();
 
