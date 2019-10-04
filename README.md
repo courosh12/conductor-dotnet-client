@@ -28,13 +28,21 @@ public Sample
 
 ## Worker usage
 
-To use the worker register the client and worker in your DI with the following method, you have the option to set the amount of workers, polling interval and domain.
+To use the worker register the client and worker in your DI with the following method, you have the option to set the amount of workers, polling interval, interval stragtegy, max interval time and domain.
 
 ```csharp
-services.AddConductorWorker(service => "http://localhost:8080/api/", 1, 1000, "SampleDomain");
+services.AddConductorWorker(new ConductorClientSettings()
+{
+    ConcurrentWorkers = 1,
+    Domain = "SampleDomain",
+    IntervalStrategy = ConductorClientSettings.IntervalStrategyType.Linear,
+    MaxSleepInterval = 15_000,
+    SleepInterval = 1_000,
+    ServerUrl = new Uri("http://localhost:8080/api/")
+})
 ```
 
-This will start __x__ workes who will poll every __y__ second for new tasks.
+This will start __x__ workes who will poll every __y__ second for new tasks. If no task is returned it will back off based on the strategy provided.
 
 Your worker has to implement the IWorkflowTask interface; 
 
