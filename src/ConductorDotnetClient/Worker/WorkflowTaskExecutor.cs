@@ -16,23 +16,22 @@ namespace ConductorDotnetClient.Worker
     {
         private List<Type> _workers;
         private ILogger<WorkflowTaskExecutor> _logger;
-        private int _sleepInterval;
-        private readonly string _domain;
-        private ITaskClient _taskClient;
-        private IServiceProvider _serviceProvider;
-        private string _workerId = Guid.NewGuid().ToString();
+        private readonly ConductorClientSettings _conductorClientSettings;
+        private readonly ITaskClient _taskClient;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly string _workerId = Guid.NewGuid().ToString();
+
+        private int _sleepMultiplier = 1;        
 
         public WorkflowTaskExecutor(ITaskClient taskClient,
             IServiceProvider serviceProvider,
             ILogger<WorkflowTaskExecutor> logger,
-            int sleepInterval,
-            string domain)
+            ConductorClientSettings conductorClientSettings)
         {
             _taskClient = taskClient;
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _sleepInterval = sleepInterval;
-            _domain = domain;
+            _conductorClientSettings = conductorClientSettings;
         }
 
         private string GetWorkerName()
@@ -65,11 +64,32 @@ namespace ConductorDotnetClient.Worker
                 if (task != null)
                 {
                     await ProcessTask(task, workerToBePolled);
+                    _sleepMultiplier = 1;
                     break;
                 }
             }
             _logger.LogInformation(GetWorkerName() + "Pollcyclus ended");
-            await Task.Delay(_sleepInterval);
+            await Sleep();
+        }
+
+        private async Task Sleep()
+        {
+            var delay = _conductorClientSettings.SleepInterval;
+
+            switch (_conductorClientSettings.IntervalStrategy)
+            {
+                case ConductorClientSettings.IntervalStrategyType.Linear:
+                    delay = Math.Min(_conductorClientSettings.MaxSleepInterval, _conductorClientSettings.SleepInterval * _sleepMultiplier++);
+                    break;
+                case ConductorClientSettings.IntervalStrategyType.Exponential:
+                    var multiplier = (int)Math.Pow(2, _sleepMultiplier++);
+                    delay = Math.Min(_conductorClientSettings.MaxSleepInterval, _conductorClientSettings.SleepInterval * multiplier);
+                    break;
+            }            
+
+            _logger.LogDebug($"Waiting for {delay}ms");
+
+            await Task.Delay(delay);
         }
 
         private List<IWorkflowTask> DeterminOrderOfPolling(List<Type> workersToBePolled)
@@ -92,7 +112,7 @@ namespace ConductorDotnetClient.Worker
 
         public Task<Swagger.Api.Task> PollForTask(string taskType)
         {
-            return _taskClient.PollTask(taskType, _workerId, _domain);
+            return _taskClient.PollTask(taskType, _workerId, _conductorClientSettings.Domain);
         }
 
         private async Task ProcessTask(Swagger.Api.Task task, IWorkflowTask workflowTask)

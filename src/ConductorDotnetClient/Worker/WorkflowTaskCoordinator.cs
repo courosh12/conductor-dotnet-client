@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ConductorDotnetClient.Worker
@@ -17,11 +16,11 @@ namespace ConductorDotnetClient.Worker
         
         public WorkflowTaskCoordinator(IServiceProvider serviceProvider,
             ILogger<WorkflowTaskCoordinator> logger,
-            int concurrentWorkers)
+            ConductorClientSettings conductorClientSettings)
          {
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _concurrentWorkers = concurrentWorkers;
+            _concurrentWorkers = conductorClientSettings.ConcurrentWorkers;
         }
 
         public async Task Start()
