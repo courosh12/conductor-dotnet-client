@@ -3,11 +3,7 @@ using ConductorDotnetClient.Interfaces;
 using ConductorDotnetClient.Swagger.Api;
 using ConductorDotnetClient.Worker;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 
 namespace ConductorDotnetClient.Extensions
 {
@@ -21,33 +17,38 @@ namespace ConductorDotnetClient.Extensions
             return services;
         }
 
+        public static IServiceCollection AddConductorWorker(this IServiceCollection services, ConductorClientSettings conductorClientSettings)
+        {
+            services.AddSingleton<ConductorClientSettings>(conductorClientSettings);
+
+            services.AddHttpClient<IConductorRestClient, CustomConductorRestClient>((provider, client) =>
+            {
+                client.BaseAddress = conductorClientSettings.ServerUrl;
+            });
+
+            services.AddSingleton<IWorkflowTaskCoordinator, WorkflowTaskCoordinator>();
+            services.AddTransient<ITaskClient, RestTaskClient>();
+            services.AddTransient<IWorkflowTaskExecutor, WorkflowTaskExecutor>();
+
+            return services;
+        }
+
         public static IServiceCollection AddConductorWorker(this IServiceCollection services, 
             Func<IServiceProvider, string> serverUrl, 
             int concurrentWorkers = 1, 
             int sleepInterval = 1000,
             string domain = default(string))
         {
-            services.AddHttpClient<IConductorRestClient, CustomConductorRestClient>((provider, client) =>
+            var conductorClientSettings = new ConductorClientSettings
             {
-                client.BaseAddress = new Uri(serverUrl(provider));
-            });
+                Domain = domain,
+                IntervalStrategy = ConductorClientSettings.IntervalStrategyType.Exponential,
+                SleepInterval = sleepInterval,
+                ConcurrentWorkers = concurrentWorkers,
+                ServerUrl = new Uri(serverUrl(services.BuildServiceProvider()))
+            };
 
-            services.AddSingleton<IWorkflowTaskCoordinator>(p => {
-                return new WorkflowTaskCoordinator(p, p.GetService<ILogger<WorkflowTaskCoordinator>>(), concurrentWorkers);
-            });
-
-            services.AddTransient<ITaskClient, RestTaskClient>();
-
-            services.AddTransient<IWorkflowTaskExecutor>(provider =>
-            {
-                return new WorkflowTaskExecutor(provider.GetService<ITaskClient>(),
-                    provider,
-                    provider.GetService<ILogger<WorkflowTaskExecutor>>(),
-                    sleepInterval,
-                    domain);
-            });
-
-            return services;
+            return services.AddConductorWorker(conductorClientSettings);
         }
 
         public static IServiceCollection AddConductorClient(this IServiceCollection services, Func<IServiceProvider, string> serverUrl)
