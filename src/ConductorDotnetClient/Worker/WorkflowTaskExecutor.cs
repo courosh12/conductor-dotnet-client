@@ -64,7 +64,7 @@ namespace ConductorDotnetClient.Worker
                 if (task != null)
                 {
                     await ProcessTask(task, workerToBePolled);
-                    _sleepMultiplier = 1;
+                    _sleepMultiplier = 0;
                     break;
                 }
             }
