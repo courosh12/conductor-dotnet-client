@@ -42,7 +42,7 @@ services.AddConductorWorker(new ConductorClientSettings()
 })
 ```
 
-This will start __x__ workes who will poll every __y__ second for new tasks. If no task is returned it will back off based on the strategy provided.
+This will start __x__ workers who will poll every __y__ second for new tasks. If no task is returned it will back off based on the strategy provided.
 
 Your worker has to implement the IWorkflowTask interface; 
 
